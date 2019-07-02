@@ -37,12 +37,15 @@ class GamePool {
 	}
 	
 	removeFromGame(socket) {
-		this.games.forEach(function(currentGame) {
+		for (let i = 0; i < this.games.length; i++) {
+			let currentGame = this.games[i];
+
 			if (currentGame.isClientHere(socket)) {
 				// For now just stop the game.
-				return currentGame.stop();
+				currentGame.stop();
+				break;
 			}
-		});
+		}
 		
 		this.cleanUp();
 		this.logStats();

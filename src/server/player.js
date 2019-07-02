@@ -2,14 +2,25 @@ class Player {
 	socket;
 	name;
 	score = 0;
+	clientMessages = []
 	
 	constructor(socket, name) {
 		this.socket = socket;
 		this.name = name;
 	}
 	
-	sendMessage(message) {
-		this.socket.emit("serverMessage", message);
+	getClientMessages() {
+		messages = this.clientMessages.clone();
+		this.clientMessages = []
+		return messages;
+	}
+	
+	emitReliable(event, data) {
+		this.socket.emit(event, data);
+	}
+	
+	emitUnreliable(event, data) {
+		this.socket.volatile.emit(event, data);
 	}
 }
 

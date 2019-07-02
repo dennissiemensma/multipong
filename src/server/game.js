@@ -22,16 +22,17 @@ class Game {
 	
 	addClient(socket) {
 		this.clients.push(socket);
-		socket.emit("serverMessage", "Welcome to game #" + this.gameId);
+		
+		socket.emit("ServerMessage", "Welcome to game #" + this.gameId);
 		
 		if (this.isFull()) {
 			this.start();
 		}
 	}
-
+	
 	isClientHere(socket) {
 		for (let i = 0; i < this.clients.length; i++) {
-			let currentSocket = this.clients[0];
+			let currentSocket = this.clients[i];
 			
 			if (currentSocket.id == socket.id) {
 				return true;
@@ -60,7 +61,6 @@ class Game {
 			if (currentSocket.emit == undefined) {
 				return;
 			}
-			currentSocket.emit("serverMessage", message);
 		});
 	}
 }
