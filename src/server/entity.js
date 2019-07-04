@@ -1,14 +1,16 @@
-var Vec2D = require('vector2d');
-
 class BaseEntity {
+	id;
+	type;
 	position;
-	size;
 	direction;
-	
-	constructor(position, size, direction) {
+	size;
+
+	constructor(id, position, direction, size) {
+		this.id = id;
+		this.type = this.TYPE;
 		this.position = position;
-		this.size = size;
 		this.direction = direction;
+		this.size = size;
 	}
 }
 

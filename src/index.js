@@ -1,29 +1,31 @@
-var app = require('express')();
+const express = require('express');
+const app = express();
+const port = 3000;
 var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 const GamePool = require('./server/gamepool');
 
-let gamePool = new GamePool();
+let globalGamePool = new GamePool();
 
 // Init.
 app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
+app.use('/static', express.static(__dirname + '/client'))
 
 
-// Events.
 io.on('connection', function(socket){
   console.log('Client connected: ' + socket.id);
-  gamePool.addToGame(socket);
-	
+    globalGamePool.addToGame(socket);
+
   socket.on('disconnect', function(){
 	  console.log('Client disconnected: ' + socket.id);
-	  gamePool.removeFromGame(socket);
+      globalGamePool.removeFromGame(socket);
   });
 });
 
 
 // Listener.
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+http.listen(port, function(){
+  console.log('listening for requests...');
 });

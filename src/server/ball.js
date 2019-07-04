@@ -1,16 +1,15 @@
 const BaseEntity = require('./entity');
-var Vec2D = require('vector2d');
+const vec2d = require('vec2d');
 
 
 class Ball extends BaseEntity {
-	velocity = 0;
-	
-	constructor(position, size, direction) {
-		super(
-			new Vec2D.Vector(0, 0),
-			new Vec2D.Vector(1, 1),
-			new Vec2D.Vector(0.5, 0.5)
-		);
+	TYPE = "ball"
+	velocity = 5;
+
+	move() {
+		let speed = vec2d(this.velocity, this.velocity);
+		let distance = this.direction.clone().mult(speed);
+		this.position.add(distance);
 	}
 }
 
