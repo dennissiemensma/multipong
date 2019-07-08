@@ -145,27 +145,27 @@ class Engine {
 		// Wall top and bottom.
 		this.entities.push(new Wall(
 			idCounter++,
-			vec2d(0, -this.FIELD_SIZE.y + 5),
+			vec2d(0, -this.FIELD_SIZE.y / 2 + 5),
 			this.POINT_NORTH.clone(),
-			vec2d(this.FIELD_SIZE, 2)
+			vec2d(this.FIELD_SIZE.x, 5)
 		));
 		this.entities.push(new Wall(
 			idCounter++,
-			vec2d(0, this.FIELD_SIZE.y - 5),
+			vec2d(0, this.FIELD_SIZE.y / 2 - 5),
 			this.POINT_SOUTH.clone(),
-			vec2d(this.FIELD_SIZE, 2)
+			vec2d(this.FIELD_SIZE.x, 5)
 		));
 
 		// Goals left and right.
 		this.entities.push(new Goal(
 			idCounter++,
-			vec2d(-this.FIELD_SIZE.x / 2 + 1, 0),
+			vec2d(-this.FIELD_SIZE.x / 2 + 5, 0),
 			this.POINT_EAST.clone(),
 			vec2d(5, this.FIELD_SIZE.y)
 		));
 		this.entities.push(new Goal(
 			idCounter++,
-			vec2d(this.FIELD_SIZE.x / 2 - 1, 0),
+			vec2d(this.FIELD_SIZE.x / 2 - 5, 0),
 			this.POINT_WEST.clone(),
 			vec2d(5, this.FIELD_SIZE.y)
 		));
@@ -195,7 +195,17 @@ class Engine {
 	}
 
 	handleCollision() {
+		let ballEntity = this.entities[0];
 
+		for (let i = 0 ; i < this.entities.length ; i++) {
+			let otherEntity = this.entities[i];
+
+			if (ballEntity.name == otherEntity.name) {
+				return;
+			}
+
+
+		}
 	}
 }
 

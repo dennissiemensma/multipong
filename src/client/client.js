@@ -1,3 +1,10 @@
+const BALL_COLOR = "purple";
+const WALL_COLOR = "black";
+const GOAL_COLOR = "green";
+const PADDLE_COLOR = "red";
+const DEBUG = true;
+
+
 $(function () {
     let socket = io();
 
@@ -71,7 +78,7 @@ function renderGame(entities) {
 function renderEntity(ctx, entity) {
     switch(entity.name) {
         case "ball":
-            ctx.fillStyle = 'rgb(255,0,255)';
+            ctx.fillStyle = BALL_COLOR;
             ctx.beginPath();
             ctx.arc(
                 entity.position.x,
@@ -84,17 +91,17 @@ function renderEntity(ctx, entity) {
             break;
 
         case "wall":
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = WALL_COLOR;
             renderRect(ctx, entity);
             break;
 
         case "goal":
-            ctx.fillStyle = 'green';
+            ctx.fillStyle = GOAL_COLOR;
             renderRect(ctx, entity);
             break;
 
         case "paddle":
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = PADDLE_COLOR;
             renderRect(ctx, entity);
             break;
     }
@@ -102,11 +109,25 @@ function renderEntity(ctx, entity) {
 
 function renderRect(ctx, entity) {
     ctx.fillRect(
-        entity.position.x - entity.size.x / 2,
-        entity.position.y - entity.size.y / 2,
+        entity.position.x - (entity.size.x / 2),
+        entity.position.y - (entity.size.y / 2),
         entity.size.x,
         entity.size.y
     );
+
+    if (DEBUG) {
+        // Debug for center of entity.
+        ctx.fillStyle = 'yellow';
+        ctx.beginPath();
+        ctx.arc(
+            entity.position.x,
+            entity.position.y,
+            2,
+            0,
+            2 * Math.PI
+        );
+        ctx.fill();
+    }
 }
 
 function renderGUI(gameInfo) {
@@ -127,7 +148,7 @@ function renderGUI(gameInfo) {
         -board.height / 2 + 30
     );
 
-    ctx.font = '5px serif';
+    ctx.font = '10px serif';
     ctx.strokeStyle = 'lightgray';
     textString = (gameInfo.time * 0.001).toFixed(2).toString();
     ctx.fillText(
@@ -136,21 +157,23 @@ function renderGUI(gameInfo) {
         -board.height / 2 + 40
     );
 
-    // Debugging grid.
-    // ctx.font = '10px serif';
-    // ctx.strokeStyle = 'gray';
-    // ctx.setLineDash([3, 1]);
-    // ctx.moveTo(-board.width / 2, 0);
-    // ctx.lineTo(board.width / 2, 0);
-    // ctx.fillText('X: ' + -board.width / 2, -board.width / 2 + 10, 10);
-    // ctx.fillText('X: ' + board.width / 2, board.width / 2 - 40, 10);
-    // ctx.stroke();
-    //
-    // ctx.moveTo(0, -board.width / 2);
-    // ctx.lineTo(0, board.width / 2);
-    // ctx.stroke();
-    // ctx.fillText('Y: ' + -board.height / 2, 10, -board.height / 2 + 10);
-    // ctx.fillText('Y: ' + board.height / 2, 10, board.height / 2 - 10);
+    if (DEBUG) {
+        // Debugging grid.
+        ctx.font = '10px serif';
+        ctx.strokeStyle = 'gray';
+        ctx.setLineDash([3, 1]);
+        ctx.moveTo(-board.width / 2, 0);
+        ctx.lineTo(board.width / 2, 0);
+        ctx.fillText('X: ' + -board.width / 2, -board.width / 2 + 10, 10);
+        ctx.fillText('X: ' + board.width / 2, board.width / 2 - 40, 10);
+        ctx.stroke();
+
+        ctx.moveTo(0, -board.width / 2);
+        ctx.lineTo(0, board.width / 2);
+        ctx.stroke();
+        ctx.fillText('Y: ' + -board.height / 2, 10, -board.height / 2 + 10);
+        ctx.fillText('Y: ' + board.height / 2, 10, board.height / 2 - 10);
+    }
 
     ctx.restore();
 
