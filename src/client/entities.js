@@ -1,25 +1,15 @@
 class BaseEntity {
     id;
-    type;
+    name;
     position;
-    size;
     direction;
+    size;
 
-    constructor(id, type, position, size, direction) {
+    constructor(id, name, position, direction, size) {
         this.id = id;
-        this.type = type;
+        this.name = name;
         this.position = position;
-        this.size = size;
         this.direction = direction;
-    }
-
-    dump() {
-        return {
-            'id': this.id,
-            'type': this.type,
-            'position': this.position,
-            'size': this.size,
-            'direction': this.direction
-        }
+        this.size = size;
     }
 }

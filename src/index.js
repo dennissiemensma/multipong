@@ -16,7 +16,11 @@ app.use('/static', express.static(__dirname + '/client'))
 
 io.on('connection', function(socket){
   console.log('Client connected: ' + socket.id);
-    globalGamePool.addToGame(socket);
+  globalGamePool.addToGame(socket);
+
+  socket.on('ClientMessage', function(data){
+      globalGamePool.addClientMessage(socket, data);
+  });
 
   socket.on('disconnect', function(){
 	  console.log('Client disconnected: ' + socket.id);

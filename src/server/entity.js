@@ -1,17 +1,30 @@
 class BaseEntity {
 	id;
-	type;
+	name;
 	position;
 	direction;
 	size;
 
-	constructor(id, position, direction, size) {
+	constructor(id, name, position, direction, size) {
 		this.id = id;
-		this.type = this.TYPE;
+		this.name = name;
 		this.position = position;
 		this.direction = direction;
 		this.size = size;
 	}
+
+	export() {
+		return {
+			id: this.id,
+			name: this.name,
+			position: this.position,
+			direction: this.direction,
+			size: this.size,
+		}
+	}
+
+	// Called each tick
+	think(timeSinceLastTick) {}
 }
 
 module.exports = BaseEntity;

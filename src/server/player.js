@@ -8,10 +8,14 @@ class Player {
 		this.socket = socket;
 		this.name = name;
 	}
-	
+
+	addClientMessage(message) {
+		this.clientMessages.push(message);
+	}
+
 	getClientMessages() {
-		messages = this.clientMessages.clone();
-		this.clientMessages = []
+		let messages = this.clientMessages;
+		this.clientMessages = [];
 		return messages;
 	}
 	

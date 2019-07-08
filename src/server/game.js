@@ -41,6 +41,14 @@ class Game {
 
 		return false;
 	}
+
+	addClientMessage(socket, data) {
+		if (this.engine == null) {
+			return;
+		}
+
+		this.engine.addClientMessage(socket, data);
+	}
 	
 	start() {
 		console.log("Starting game: #" + this.gameId);
@@ -52,6 +60,10 @@ class Game {
 		console.debug("Stopping game: #" + this.gameId);
 		this.broadcast("Stopping game...")
 		this.clients = [];
+
+		if (this.engine == null) {
+			return;
+		}
 		this.engine.shutdown();
 		this.engine = null;
 	}

@@ -35,6 +35,17 @@ class GamePool {
 		
 		return null;
 	}
+
+	addClientMessage(socket, data) {
+		for (let i = 0; i < this.games.length; i++) {
+			let currentGame = this.games[i];
+
+			if (currentGame.isClientHere(socket)) {
+				// For now just stop the game.
+				return currentGame.addClientMessage(socket, data);
+			}
+		}
+	}
 	
 	removeFromGame(socket) {
 		for (let i = 0; i < this.games.length; i++) {
