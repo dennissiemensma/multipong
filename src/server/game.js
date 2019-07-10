@@ -51,13 +51,11 @@ class Game {
 	}
 	
 	start() {
-		console.log("Starting game: #" + this.gameId);
 		this.broadcast("Enough players joined game, starting...")
 		this.engine = new Engine(this.clients);
 	}
 	
 	stop() {
-		console.debug("Stopping game: #" + this.gameId);
 		this.broadcast("Stopping game...")
 		this.clients = [];
 

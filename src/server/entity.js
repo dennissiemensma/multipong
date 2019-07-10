@@ -25,6 +25,12 @@ class BaseEntity {
 
 	// Called each tick
 	think(timeSinceLastTick) {}
+
+	// On ball hit.
+	touch() {}
+
+	// After each goal.
+	reset() {}
 }
 
 module.exports = BaseEntity;

@@ -2,7 +2,7 @@ const BALL_COLOR = "purple";
 const WALL_COLOR = "black";
 const GOAL_COLOR = "green";
 const PADDLE_COLOR = "red";
-const DEBUG = true;
+const DEBUG = false;
 
 
 $(function () {
@@ -14,6 +14,7 @@ $(function () {
     //     $('#m').val('');
     //     return false;
     // });
+
     socket.on('ServerMessage', function (data) {
         // $('#messages').append($('<li>').text(data));
         console.log(data)
@@ -22,6 +23,7 @@ $(function () {
     socket.on('GameUpdate', function (data) {
         renderGame(data.entities);
         renderGUI(data.game);
+
     });
 
     socket.on('disconnect', onDisconnect);
@@ -36,8 +38,6 @@ function onDisconnect() {
 
 
 function renderBackground() {
-    let start = window.performance.now();
-
     let board = document.querySelector("#background-canvas");
     let ctx = board.getContext("2d");
 
@@ -47,14 +47,9 @@ function renderBackground() {
     ctx.strokeStyle = 'black';
     ctx.strokeRect(-board.width / 2, -board.height / 2, board.width, board.height);
     ctx.restore();
-
-    end = window.performance.now();
-    // console.info('renderBackground() took: ' + (end - start));
 }
 
 function renderGame(entities) {
-    let start = window.performance.now();
-
     let board = document.querySelector("#game-canvas");
     let ctx = board.getContext("2d");
 
@@ -70,9 +65,6 @@ function renderGame(entities) {
     }
 
     ctx.restore();
-
-    end = window.performance.now();
-    // console.info('renderGame() took: ' + (end - start));
 }
 
 function renderEntity(ctx, entity) {
@@ -105,19 +97,13 @@ function renderEntity(ctx, entity) {
             renderRect(ctx, entity);
             break;
     }
-}
-
-function renderRect(ctx, entity) {
-    ctx.fillRect(
-        entity.position.x - (entity.size.x / 2),
-        entity.position.y - (entity.size.y / 2),
-        entity.size.x,
-        entity.size.y
-    );
 
     if (DEBUG) {
-        // Debug for center of entity.
-        ctx.fillStyle = 'yellow';
+        // Debug for center of entity and direction.
+        ctx.save();
+
+        ctx.fillStyle = 'orange';
+        ctx.strokeStyle = 'orange';
         ctx.beginPath();
         ctx.arc(
             entity.position.x,
@@ -127,12 +113,30 @@ function renderRect(ctx, entity) {
             2 * Math.PI
         );
         ctx.fill();
+
+        let lineLength = 25;
+        let lineTo = Object.assign({}, entity.position); // Copy
+        lineTo.x += entity.direction.x * lineLength
+        lineTo.y += entity.direction.y * lineLength
+        ctx.lineWidth = '2';
+        ctx.moveTo(entity.position.x, entity.position.y);
+        ctx.lineTo(lineTo.x, lineTo.y);
+        ctx.stroke();
+
+        ctx.restore();
     }
 }
 
-function renderGUI(gameInfo) {
-    let start = window.performance.now();
+function renderRect(ctx, entity) {
+    ctx.fillRect(
+        entity.position.x - (entity.size.x / 2),
+        entity.position.y - (entity.size.y / 2),
+        entity.size.x,
+        entity.size.y
+    );
+}
 
+function renderGUI(gameInfo) {
     let board = document.querySelector("#game-canvas");
     let ctx = board.getContext("2d");
 
@@ -141,7 +145,7 @@ function renderGUI(gameInfo) {
 
     ctx.font = '30px serif';
     ctx.strokeStyle = 'black';
-    let textString = gameInfo.score.join(" - ");
+    let textString = gameInfo.lifes.join(" - ");
     ctx.fillText(
         textString,
         -ctx.measureText(textString).width / 2,
@@ -150,15 +154,23 @@ function renderGUI(gameInfo) {
 
     ctx.font = '10px serif';
     ctx.strokeStyle = 'lightgray';
-    textString = (gameInfo.time * 0.001).toFixed(2).toString();
+    textString = "Time: " + (gameInfo.time * 0.001).toFixed(2).toString();
     ctx.fillText(
         textString,
-        -ctx.measureText(textString).width / 2,
+        -board.width / 2 + 10,
+        -board.height / 2 + 20
+    );
+    textString = "Ball speed: " + gameInfo.ball.speed.toString();
+    ctx.fillText(
+        textString,
+        -board.width / 2 + 10,
         -board.height / 2 + 40
     );
 
     if (DEBUG) {
         // Debugging grid.
+        ctx.save();
+
         ctx.font = '10px serif';
         ctx.strokeStyle = 'gray';
         ctx.setLineDash([3, 1]);
@@ -171,12 +183,11 @@ function renderGUI(gameInfo) {
         ctx.moveTo(0, -board.width / 2);
         ctx.lineTo(0, board.width / 2);
         ctx.stroke();
-        ctx.fillText('Y: ' + -board.height / 2, 10, -board.height / 2 + 10);
+        ctx.fillText('Y: ' + -board.height / 2, 10, -board.height / 2 + 40);
         ctx.fillText('Y: ' + board.height / 2, 10, board.height / 2 - 10);
+
+        ctx.restore();
     }
 
     ctx.restore();
-
-    end = window.performance.now();
-    // console.info('renderGUI() took: ' + (end - start));
 }

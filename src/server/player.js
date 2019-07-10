@@ -1,12 +1,13 @@
 class Player {
 	socket;
 	name;
-	score = 0;
+	lifes = 0;
 	clientMessages = []
 	
-	constructor(socket, name) {
+	constructor(socket, name, lifes) {
 		this.socket = socket;
 		this.name = name;
+		this.lifes = lifes;
 	}
 
 	addClientMessage(message) {

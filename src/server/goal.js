@@ -1,8 +1,15 @@
 const BaseEntity = require('./entity');
 
 class Goal extends BaseEntity {
-    constructor(id, position, direction, size) {
+    scoringPlayer = null;
+
+    constructor(id, position, direction, size, scoringPlayer) {
         super(id, "goal", position, direction, size)
+        this.scoringPlayer = scoringPlayer;
+    }
+
+    touch() {
+        this.scoringPlayer.lifes--;
     }
 }
 
