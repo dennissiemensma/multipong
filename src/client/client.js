@@ -4,33 +4,48 @@ const GOAL_COLOR = "green";
 const PADDLE_COLOR = "red";
 const DEBUG = false;
 
-
 $(function () {
     let socket = io();
-
-    // $('form').submit(function(e){
-    //     e.preventDefault(); // prevents page reloading
-    //     socket.volatile.emit('ClientMessage', $('#m').val());
-    //     $('#m').val('');
-    //     return false;
-    // });
 
     socket.on('ServerMessage', function (data) {
         // $('#messages').append($('<li>').text(data));
         console.log(data)
     });
 
-    socket.on('GameUpdate', function (data) {
-        renderGame(data.entities);
-        renderGUI(data.game);
+    socket.on('ServerMessage', function (data) {
+        switch(data.type) {
+            case "GameStart":
+                console.ingo("STARTING GAME");
+                return;
 
+            case "GameUpdate":
+                renderGame(data.entities);
+                renderGUI(data.game, data.won);
+                return;
+
+            case "GameOver":
+                renderGameEnd(data.message)
+                return;
+
+        }
     });
 
     socket.on('disconnect', onDisconnect);
 
     renderBackground();
-});
 
+    // Listen mouse.
+    let board = document.querySelector("#ui-canvas");
+    board.addEventListener('mousemove', function(event) {
+        let board = document.querySelector("#ui-canvas");
+        let area = board.getBoundingClientRect();
+        let position = event.clientY - area.top;
+
+        // Translate to grid. Top is zero but should be -half.
+        position -= board.height / 2;
+        socket.emit('ClientMessage', {position: position});
+    });
+});
 
 function onDisconnect() {
     console.error("Server disconnected... =(");
@@ -137,34 +152,29 @@ function renderRect(ctx, entity) {
 }
 
 function renderGUI(gameInfo) {
-    let board = document.querySelector("#game-canvas");
+    let board = document.querySelector("#ui-canvas");
     let ctx = board.getContext("2d");
 
     ctx.save();
     ctx.translate(board.width / 2, board.height / 2);
 
+    // Flush
+    ctx.clearRect(-board.width / 2, -board.height / 2, board.width, board.height);
+
     ctx.font = '30px serif';
-    ctx.strokeStyle = 'black';
-    let textString = gameInfo.lifes.join(" - ");
+    ctx.fillStyle = 'red';
+    let HEART = "♥";
+    let player1Lifes = HEART.repeat(gameInfo.lifes[0]);
+    let player2Lifes = HEART.repeat(gameInfo.lifes[1]);
     ctx.fillText(
-        textString,
-        -ctx.measureText(textString).width / 2,
+        player1Lifes,
+        -board.width / 2 + 10,
         -board.height / 2 + 30
     );
-
-    ctx.font = '10px serif';
-    ctx.strokeStyle = 'lightgray';
-    textString = "Time: " + (gameInfo.time * 0.001).toFixed(2).toString();
     ctx.fillText(
-        textString,
-        -board.width / 2 + 10,
-        -board.height / 2 + 20
-    );
-    textString = "Ball speed: " + gameInfo.ball.speed.toString();
-    ctx.fillText(
-        textString,
-        -board.width / 2 + 10,
-        -board.height / 2 + 40
+        player2Lifes,
+        board.width / 2 - ctx.measureText(player2Lifes).width - 10,
+        -board.height / 2 + 30
     );
 
     if (DEBUG) {
@@ -188,6 +198,27 @@ function renderGUI(gameInfo) {
 
         ctx.restore();
     }
+
+    ctx.restore();
+}
+
+function renderGameEnd(message, won) {
+    let board = document.querySelector("#ui-canvas");
+    let ctx = board.getContext("2d");
+
+    ctx.save();
+    ctx.translate(board.width / 2, board.height / 2);
+
+    // Flush
+    ctx.clearRect(-board.width / 2, -board.height / 2, board.width, board.height);
+
+    ctx.font = '30px serif';
+    ctx.fillStyle = won ? 'green' : 'red';
+    ctx.fillText(
+        message,
+        -ctx.measureText(message).width / 2,
+        -board.height / 2 + 30
+    );
 
     ctx.restore();
 }

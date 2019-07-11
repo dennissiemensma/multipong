@@ -2,7 +2,8 @@ const BaseEntity = require('./entity');
 const vec2d = require('vec2d');
 
 class Paddle extends BaseEntity {
-    SHRINK_PER_HIT = 10;
+    MINIMAL_SIZE = 50;
+    SHRINK_PER_HIT = 5;
 
     initialSize = null;
     player = null;
@@ -17,6 +18,11 @@ class Paddle extends BaseEntity {
     }
 
     touch() {
+        if (this.size.y < this.MINIMAL_SIZE) {
+            this.size.y = this.MINIMAL_SIZE
+            return;
+        }
+
         this.size.sub(vec2d(0, this.SHRINK_PER_HIT))
     }
 

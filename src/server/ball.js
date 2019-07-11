@@ -5,7 +5,7 @@ const vec2d = require('vec2d');
 class Ball extends BaseEntity {
 	SPEED_INCREMENT_PER_HIT = 5;  // %
 	SPEED_CAP = 1500;
-	MAX_RANDOM_ANGLE = 5;
+	MAX_RANDOM_ANGLE = 10;  // degrees
 
 	initialSpeed = 0;  // per second
 	currentSpeed = 0;
@@ -59,12 +59,13 @@ class Ball extends BaseEntity {
 	}
 
 	getRandomDirection() {
-		let x = Math.random() * (Math.random() < 0.5 ? -1 : 1);
-		let y = Math.random() * (Math.random() < 0.5 ? -1 : 1);
-		return vec2d(x, y).normalized()
+		let x = Math.random() < 0.5 ? -1 : 1;
+		let y = Math.random() * 0.5 * (Math.random() < 0.5 ? -1 : 1);
+		return vec2d(x, y).normalized();
 	}
 
 	reset() {
+
 		this.position = vec2d(0, 0);
 		this.direction = this.getRandomDirection();
 		this.currentSpeed = this.initialSpeed;

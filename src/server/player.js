@@ -1,12 +1,11 @@
 class Player {
 	socket;
-	name;
 	lifes = 0;
 	clientMessages = []
+	paddle = null;
 	
-	constructor(socket, name, lifes) {
+	constructor(socket, lifes) {
 		this.socket = socket;
-		this.name = name;
 		this.lifes = lifes;
 	}
 

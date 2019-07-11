@@ -7,7 +7,7 @@ const Goal = require('./goal');
 
 class Engine {
 	FIELD_SIZE = vec2d(800, 600);
-	PADDLE_SIZE = vec2d(10, 150);
+	PADDLE_SIZE = vec2d(5, 100);
 	POINT_NORTH = vec2d(0, 1).normalized();
 	POINT_EAST = vec2d(1, 0).normalized();
 	POINT_SOUTH = vec2d(0, -1).normalized();
@@ -31,9 +31,11 @@ class Engine {
 	constructor(sockets) {
 		for (let i = 0; i < sockets.length; i++) {
 			let currentSocket = sockets[i];
-			let player = new Player(currentSocket, "Noob", this.INITIAL_PLAYER_LIFES);
+			let player = new Player(currentSocket, this.INITIAL_PLAYER_LIFES);
 			this.players.push(player)
-			player.emitUnreliable("ServerMessage", "Starting game");
+			player.emitReliable("ServerMessage", {
+				type: "GameStart"
+			});
 		}
 
 		this.start();
@@ -75,12 +77,9 @@ class Engine {
 		}
 
 		let message = {
+			type: "GameUpdate",
 			game: {
-				time: this.getGameTime(),
 				lifes: [],
-				ball: {
-					speed: this.entities[0].currentSpeed
-				}
 			},
 			entities: []
 		};
@@ -96,7 +95,7 @@ class Engine {
 
 		for (let i = 0; i < this.players.length; i++) {
 			let currentPlayer = this.players[i];
-			currentPlayer.emitUnreliable("GameUpdate", message);
+			currentPlayer.emitUnreliable("ServerMessage", message);
 		}
 
 		this.nextClientUpdate = this.getGameTime() + this.CLIENT_UPDATE_INTERVAL;
@@ -118,7 +117,6 @@ class Engine {
 	 */
 	tick(engine) {
 		engine.updateGameTime();
-		// console.debug("Engine tick @ " + engine.getGameTime());
 
 		// Read client input.
 		engine.readClientInput();
@@ -135,7 +133,13 @@ class Engine {
 		for (let i = 0; i < this.players.length; i++) {
 			let currentPlayer = this.players[i];
 			let messages = currentPlayer.getClientMessages();
-			// console.log(messages)
+
+			if (messages.length > 0) {
+				for (let x = 0 ; x < messages.length ; x++) {
+					let currentMessage = messages[x];
+					currentPlayer.paddle.position.y = currentMessage.position;
+				}
+			}
 		}
 	}
 
@@ -182,21 +186,38 @@ class Engine {
 			player2
 		));
 
-		// Players
-		this.entities.push(new Paddle(
+		// Player paddles
+		let paddle1 = new Paddle(
 			idCounter++,
 			vec2d(-this.FIELD_SIZE.x / 2 + 25, 0),
 			this.POINT_EAST.clone(),
 			this.PADDLE_SIZE,
 			player1
-		));
-		this.entities.push(new Paddle(
+		);
+		this.entities.push(paddle1);
+		player1.paddle = paddle1;
+
+		let paddle2 = new Paddle(
 			idCounter++,
 			vec2d(this.FIELD_SIZE.x / 2 - 25, 0),
 			this.POINT_WEST.clone(),
 			this.PADDLE_SIZE,
 			player2
-		));
+		);
+		this.entities.push(paddle2);
+		player2.paddle = paddle2;
+	}
+
+	resetEntities() {
+		for (let i = 0 ; i < this.entities.length ; i++) {
+			this.entities[i].reset();
+		}
+	}
+👎👎👎👎
+	destroyEntities() {
+		for (let i = 0 ; i < this.entities.length ; i++) {
+			delete this.entities[i];
+		}
 	}
 
 	thinkEntities() {
@@ -223,13 +244,12 @@ class Engine {
 			}
 
 			// Rectangle collision detection.
-			if (this.hasCollision(ballEntity, otherEntity)) {
-				console.debug("Ball collides with", otherEntity.name, otherEntity.id)
-
+			if (ballEntity.collidesWith(otherEntity)) {
 				switch(otherEntity.name) {
 					case "wall":
 						ballEntity.bounce(otherEntity);
-						// ballEntity.randomlyAdjustAngle();
+						ballEntity.increaseSpeed();
+						ballEntity.randomlyAdjustAngle();
 						return;
 
 					case "paddle":
@@ -249,49 +269,31 @@ class Engine {
 		}
 	}
 
-	hasCollision(entity, otherEntity) {
-		// http://jeffreythompson.org/collision-detection/rect-rect.php
-		let r1x = entity.position.x - entity.size.x / 2;
-		let r1y = entity.position.y - entity.size.y / 2;
-		let r1w = entity.size.x;
-		let r1h = entity.size.y;
-
-		let r2x = otherEntity.position.x - otherEntity.size.x / 2;
-		let r2y = otherEntity.position.y - otherEntity.size.y / 2;
-		let r2w = otherEntity.size.x;
-		let r2h = otherEntity.size.y;
-
-		if (r1x + r1w >= r2x &&    // r1 right edge past r2 left
-			r1x <= r2x + r2w &&    // r1 left edge past r2 right
-			r1y + r1h >= r2y &&    // r1 top edge past r2 bottom
-			r1y <= r2y + r2h) {    // r1 bottom edge past r2 top
-			return true;
-		}
-
-		return false;
-	}
-
-	resetEntities() {
-		for (let i = 0 ; i < this.entities.length ; i++) {
-			this.entities[i].reset();
-		}
-	}
-
 	checkPlayerLifes() {
 		for (let i = 0; i < this.players.length; i++) {
 			let currentPlayer = this.players[i];
 
 			if (currentPlayer.lifes == 0) {
-				return this.endGame(currentPlayer);
+				return this.stop(currentPlayer);
 			}
 		}
 	}
 
-	endGame(loser) {
-		// for (let i = 0; i < this.players.length; i++) {
-		// 	let currentPlayer = this.players[i];
-		// 	currentPlayer.emitUnreliable("GameUpdate", message);
-		// }
+	stop(loser) {
+		for (let i = 0; i < this.players.length; i++) {
+			let currentPlayer = this.players[i];
+			let won = currentPlayer != loser;
+			let message = won ? "Congratulations, YOU WON!" : "Doh, you've lost the game!👎";
+
+			currentPlayer.emitReliable("ServerMessage", {
+				type: "GameOver",
+				message: message,
+				won: won
+			});
+		}
+
+		this.destroyEntities();
+		this.shutdown();
 	}
 }
 
