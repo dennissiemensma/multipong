@@ -3,6 +3,10 @@
     <head>
     <title>MultiPong</title>
         <style type="text/css">
+          html, body {
+              background: lightgray;
+          }
+
           #viewport {
               width: 800px;
               height: 600px;
@@ -10,6 +14,14 @@
               border: 1px solid grey;
               padding: 0px;
               margin: auto;
+          }
+
+          #help {
+              position: relative;
+              padding: 0px;
+              margin: auto;
+              width: 800px;
+              font-size: 12px;
           }
 
           canvas { position: absolute; cursor: none; }
@@ -25,6 +37,17 @@
             <canvas id="ui-canvas" width="800" height="600"></canvas>
             <canvas id="game-canvas" width="800" height="600"></canvas>
             <canvas id="background-canvas" width="800" height="600"></canvas>
+        </div>
+        <div id="help">
+            <p>Welcome to MultiPong!</p>
+            <ul>
+                <li>The game will start when an opponent has been found.</li>
+                <li>Move your mouse cursor inside the game area to move your paddle.</li>
+                <li>Each the ball bounces off a surface, its speed will increase by 5%.</li>
+                <li>Each time your paddle touches the ball, the paddle will slightly shrink.</li>
+                <li>Enjoy!</li>
+            </ul>
+
         </div>
 
         <script src="/socket.io/socket.io.js"></script>

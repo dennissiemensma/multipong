@@ -2,7 +2,7 @@ const BaseEntity = require('./entity');
 const vec2d = require('vec2d');
 
 class Paddle extends BaseEntity {
-    MINIMAL_SIZE = 50;
+    MINIMAL_SIZE = 25;
     SHRINK_PER_HIT = 5;
 
     initialSize = null;

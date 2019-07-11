@@ -6,10 +6,10 @@ class Game {
 	gameId;
 	clients = [];
 	engine = null;
-	
+
 	constructor(gameId) {
 		this.gameId = gameId;
-		console.log("Created new game ID: " + this.gameId);
+		console.log(">> Created new game #" + this.gameId);
 	}
 	
 	isFull() {
@@ -23,7 +23,10 @@ class Game {
 	addClient(socket) {
 		this.clients.push(socket);
 		
-		socket.emit("ServerMessage", "Welcome to game #" + this.gameId);
+		socket.emit("ServerMessage", {
+			type: "Announcement",
+			message: "Welcome to game #" + this.gameId
+		});
 		
 		if (this.isFull()) {
 			this.start();
@@ -51,27 +54,18 @@ class Game {
 	}
 	
 	start() {
-		this.broadcast("Enough players joined game, starting...")
-		this.engine = new Engine(this.clients);
+		this.engine = new Engine(this.gameId, this.clients);
 	}
 	
 	stop() {
-		this.broadcast("Stopping game...")
 		this.clients = [];
 
 		if (this.engine == null) {
 			return;
 		}
-		this.engine.shutdown();
+
+		this.engine.halt();
 		this.engine = null;
-	}
-	
-	broadcast(message) {
-		this.clients.forEach(function(currentSocket) {
-			if (currentSocket.emit == undefined) {
-				return;
-			}
-		});
 	}
 }
 

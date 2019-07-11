@@ -9,7 +9,7 @@ class GamePool {
 		let openGame = this.findOpenGame();
 
 		if (openGame != null) {
-			console.debug("Adding " + socket.id + " to existing game: #" + openGame.gameId)
+			console.debug(" - Adding " + socket.id + " to existing game: #" + openGame.gameId)
 			return openGame.addClient(socket);
 		}
 		
@@ -18,9 +18,9 @@ class GamePool {
 		this.games.push(newGame);
 		
 		newGame.addClient(socket);
-		console.debug("Adding " + socket.id + " to new game: #" + newGame.gameId)
+		console.debug(" - Adding " + socket.id + " to new game: #" + newGame.gameId)
 
-		this.logStats();
+		this.cleanUp();
 	}
 	
 	findOpenGame() {
@@ -53,24 +53,23 @@ class GamePool {
 
 			if (currentGame.isClientHere(socket)) {
 				// For now just stop the game.
+				console.log(">> Stopping game #", currentGame.gameId)
 				currentGame.stop();
 				break;
 			}
 		}
 		
 		this.cleanUp();
-		this.logStats();
 	}
 	
 	cleanUp() {
 		this.games = this.games.filter(function(currentGame, index, array){
+			console.log(">> Deleting game #", currentGame.gameId)
 			return ! currentGame.isEmpty();
 		});
+		console.debug("[i] Number of games open for players: " + this.games.length);
 	}
-	
-	logStats() {
-		console.debug("Number of games open for players: " + this.games.length);
-	}
+
 }
 
 module.exports = GamePool;
