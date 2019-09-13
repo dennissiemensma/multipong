@@ -12,7 +12,7 @@ class Engine {
 	POINT_EAST = vec2d(1, 0).normalized();
 	POINT_SOUTH = vec2d(0, -1).normalized();
 	POINT_WEST = vec2d(-1, 0).normalized();
-	INITIAL_PLAYER_LIFES = 10;
+	INITIAL_PLAYER_LIFES = 3;
 	TICK_INTERVAL = 5;  // ms
 	CLIENT_UPDATE_INTERVAL = 5;  // ms
 	BALL_SPEED = 300;
